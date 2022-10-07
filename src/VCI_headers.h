@@ -47,6 +47,8 @@ Headers, libraries, and data structures for VHCI
 #include <Spectra/SymEigsSolver.h>
 #include <Spectra/MatOp/SparseSymMatProd.h>
 #include <boost/functional/hash.hpp>
+#include <numeric>
+
 //Set namespaces for common libraries
 using namespace Eigen;
 using namespace std;
@@ -158,6 +160,8 @@ double HCI_Eps; // Variational CI energy parameter epsilon_1
 bool perturb; // Should I use PT2 correction?
 bool restart; // Am I restarting from a checkpoint file?
 double PT2_Eps; // PT2 basis energy parameter epsilon_2
+double SPT2_Eps;
+int NWalkers;
 
 typedef unordered_set<WaveFunction, WfnHasher> HashedStates;
 typedef SparseMatrix<double, 0, ptrdiff_t> SpMat;
@@ -220,6 +224,8 @@ void Perform_HCI(MatrixXd&, VectorXd&, const string&);
 void QDiffVec(int, int, int&, int&, vector<int>&);
 
 void DoPT2(MatrixXd&, VectorXd&);
+
+void DoStocasticPT2(MatrixXd&, VectorXd&, int);
 
 void AddASCI(vector<WaveFunction>&, MatrixXd&, VectorXd&);
 

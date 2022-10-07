@@ -187,6 +187,9 @@ void ReadCIInput(fstream& vcidata)
     vcidata >> perturb;
     vcidata >> dummy;
     vcidata >> PT2_Eps;
+    vcidata >> dummy;
+    vcidata >> SPT2_Eps;
+    vcidata >> NWalkers;
     if (perturb != 0 && perturb != 1)
     {
         //Print an error message

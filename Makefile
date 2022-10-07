@@ -7,7 +7,7 @@
 ### Compiler settings
 CXX=g++ -std=c++14
 CXXFLAGS=-static-libgcc -static-libstdc++ -fopenmp -O3
-LDFLAGS=-I./src/ -I/usr/include/eigen3/ -I/usr/include/boost/ -I/usr/include/Spectra
+LDFLAGS=-I./src/ -I/home/henry/include/eigen3.7/ -I/home/henry/include/boost/ -I/home/henry/include/spectra-0.6.2/include
 
 #########################################################
 
