@@ -110,8 +110,8 @@ int main(int argc, char* argv[])
         else{
             cout << " Including all connected states in PT2 calculation." << endl;
         }
-        if (SPT2_Eps < 1E-12) DoPT2(CIVec, CIFreq);
-        else DoStocasticPT2(CIVec,CIFreq, NWalkers);
+        if (SPT2_Eps < 1E-12) DoPT2_StateSpecific(CIVec, CIFreq);
+        else DoStocasticPT2_StateSpecific(CIVec,CIFreq, NWalkers);
     }
     
         //Print freqs (do before removing ZPE)

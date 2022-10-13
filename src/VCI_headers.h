@@ -223,9 +223,15 @@ void Perform_HCI(MatrixXd&, VectorXd&, const string&);
 
 void QDiffVec(int, int, int&, int&, vector<int>&);
 
+void QDiffVec(WaveFunction &Bn, WaveFunction &Bm, int &qtot, int &mchange, vector<int> &DiffVec);
+
 void DoPT2(MatrixXd&, VectorXd&);
 
+void DoPT2_StateSpecific(MatrixXd&, VectorXd&);
+
 void DoStocasticPT2(MatrixXd&, VectorXd&, int);
+
+void DoStocasticPT2_StateSpecific(MatrixXd&, VectorXd&, int);
 
 void AddASCI(vector<WaveFunction>&, MatrixXd&, VectorXd&);
 

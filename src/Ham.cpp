@@ -398,6 +398,20 @@ inline void QDiffVec(int n, int m, int& qtot, int& mchange, vector<int>& DiffVec
     return;
 };
 
+inline void QDiffVec(WaveFunction &Bn, WaveFunction &Bm, int &qtot, int &mchange, vector<int> &DiffVec)
+{
+    for (unsigned int i = 0; i < Bn.M; i++)
+    {
+        int qdiff = 0;
+        qdiff += Bn.Modes[i].Quanta;
+        qdiff -= Bm.Modes[i].Quanta;
+        DiffVec[i] = abs(qdiff);
+        qtot += abs(qdiff);
+        if (qdiff != 0) mchange += 1;
+    }
+    return;
+}
+
 inline bool ScreenState(int qdiff, int mchange, const vector<int>& QDiffVec, const FConst& fc)
 {
     //Function for ignoring states that have no overlap
