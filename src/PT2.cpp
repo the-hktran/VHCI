@@ -149,7 +149,7 @@ void DoPT2(MatrixXd& Evecs, VectorXd& Evals){
     }
     for(int n=0; n<N_opt; n++){
         Evals(n) += DeltaE[n];
-        std::cout << DeltaE[n] << std::endl;
+        //std::cout << DeltaE[n] << std::endl;
     }
     cout << " New ZPE after PT2 correction is: " << Evals(0) << endl;
 }
@@ -203,7 +203,7 @@ void FillWalkers(std::vector<int>& WalkerPopulation, std::vector<double>& Walker
     }
 }
 
-void DoStocasticPT2(MatrixXd& Evecs, VectorXd& Evals, int Nd)
+std::vector<double> DoStocasticPT2(MatrixXd& Evecs, VectorXd& Evals, int Nd, double Epsilon3)
 {
     cout << " Starting Stocastic PT2 corrections." << endl;
     if(HCI_Eps==0){
@@ -233,7 +233,7 @@ void DoStocasticPT2(MatrixXd& Evecs, VectorXd& Evals, int Nd)
         HashedBasisInit.insert(wfn); // Populate hashed unordered_set with initial basis states
     }
     for(unsigned int n=0; n<Cmax.size(); n++){ // Loop over max CI coefficients and add basis states
-        AddStatesHB(HashedBasisInit,HashedPTBasis,n,Cmax[n],PT2_Eps);
+        AddStatesHB(HashedBasisInit,HashedPTBasis,n,Cmax[n],Epsilon3);
     }
     int PTBasisSize = HashedPTBasis.size();
     cout << " Perturbative space contains " << PTBasisSize << " states." << endl;
@@ -383,16 +383,19 @@ void DoStocasticPT2(MatrixXd& Evecs, VectorXd& Evals, int Nd)
             DeltaE[n] += (pow(SumHaiCi[n],2) + SumHaiCi2[n]) / ((Evals(n)-Ea) * Nd * (Nd - 1));
         }
     }
+    /*
     for(int n=0; n<N_opt; n++){
         Evals(n) += DeltaE[n];
         std::cout << DeltaE[n] << std::endl;
     }
     cout << " New ZPE after PT2 correction is: " << Evals(0) << endl;
+    */
+    return DeltaE;
 }
 
 void DoPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Evals)
 {
-    cout << " Starting Stocastic PT2 corrections." << endl;
+    cout << " Starting PT2 corrections." << endl;
     if(HCI_Eps==0){
         HeatBath_Sort_FC();
     }
@@ -534,11 +537,12 @@ void DoPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Evals)
     for (int n = 0; n < N_opt; n++)
     {
         Evals(n) += DeltaE[n];
-        std::cout << DeltaE[n] << std::endl;
+        //std::cout << DeltaE[n] << std::endl;
     }
     cout << " New ZPE after PT2 correction is: " << Evals(0) << endl;
 }
-void DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Evals, int Nd)
+
+std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Evals, int Nd, double Epsilon3)
 {
     cout << " Starting Stocastic PT2 corrections." << endl;
     if(HCI_Eps==0){
@@ -580,7 +584,7 @@ void DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Evals, int Nd)
         std::vector<double> Cn;
         for (unsigned int i = 0; i < Evecs.rows(); i++) 
         {
-            AddStatesHB(HashedBasisInit, HashedPTBasis, i, Evecs(i, n), PT2_Eps);
+            AddStatesHB(HashedBasisInit, HashedPTBasis, i, Evecs(i, n), Epsilon3);
             Cn.push_back(Evecs(i, n));
         }
         int PTBasisSize = HashedPTBasis.size();
@@ -687,10 +691,26 @@ void DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Evals, int Nd)
         }
     }
     
+    /*
     for (int n = 0; n < N_opt; n++)
     {
         Evals(n) += DeltaE[n];
         std::cout << DeltaE[n] << std::endl;
     }
     cout << " New ZPE after PT2 correction is: " << Evals(0) << endl;
+    */
+    return DeltaE;
+}
+
+
+void DoSSPT2(MatrixXd& Evecs, VectorXd& Evals)
+{
+    DoPT2_StateSpecific(Evecs, Evals);
+    std::vector<double> dE_Loose = DoStocasticPT2_StateSpecific(Evecs, Evals, NWalkers, PT2_Eps);
+    std::vector<double> dE_Tight = DoStocasticPT2_StateSpecific(Evecs, Evals, NWalkers, SPT2_Eps);
+    for (unsigned int n = 0; n < dE_Loose.size(); n++)
+    {
+        Evals[n] += (dE_Tight[n] - dE_Loose[n]);
+        //std::cout << dE_Tight[n] - dE_Loose[n] << std::endl;
+    }
 }

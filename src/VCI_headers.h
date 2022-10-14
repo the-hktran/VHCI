@@ -157,7 +157,7 @@ vector<FConst> QuinticFC; //List of quintic force constants
 vector<FConst> SexticFC; //List of sextic force constants
 
 double HCI_Eps; // Variational CI energy parameter epsilon_1
-bool perturb; // Should I use PT2 correction?
+int perturb; // Should I use PT2 correction?
 bool restart; // Am I restarting from a checkpoint file?
 double PT2_Eps; // PT2 basis energy parameter epsilon_2
 double SPT2_Eps;
@@ -229,9 +229,11 @@ void DoPT2(MatrixXd&, VectorXd&);
 
 void DoPT2_StateSpecific(MatrixXd&, VectorXd&);
 
-void DoStocasticPT2(MatrixXd&, VectorXd&, int);
+void DoSSPT2(MatrixXd&, VectorXd&);
 
-void DoStocasticPT2_StateSpecific(MatrixXd&, VectorXd&, int);
+std::vector<double> DoStocasticPT2(MatrixXd&, VectorXd&, int, double);
+
+std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd&, VectorXd&, int, double);
 
 void AddASCI(vector<WaveFunction>&, MatrixXd&, VectorXd&);
 

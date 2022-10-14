@@ -78,7 +78,7 @@ int main(int argc, char* argv[])
         cout << "Beginning Heat Bath CI procedure..." << '\n';
         Perform_HCI(CIVec,CIFreq,cpname);
     }
-    if(perturb){
+    if(perturb == 1){
         EndTime = (unsigned)time(0); //Time the calculation stops
         RunTime = (double)(EndTime-StartTime); //Total run time
         if (RunTime >= 3600)
@@ -110,9 +110,18 @@ int main(int argc, char* argv[])
         else{
             cout << " Including all connected states in PT2 calculation." << endl;
         }
-        if (SPT2_Eps < 1E-12) DoPT2_StateSpecific(CIVec, CIFreq);
-        else DoStocasticPT2_StateSpecific(CIVec,CIFreq, NWalkers);
+        DoPT2_StateSpecific(CIVec, CIFreq);
     }
+    else if (perturb == 2)
+    {
+        std::vector<double> dE = DoStocasticPT2_StateSpecific(CIVec, CIFreq, NWalkers, SPT2_Eps);
+        for (int n = 0; n < dE.size(); n++) CIFreq[n] += dE[n];
+    }
+    else if (perturb == 3)
+    {
+        if (SPT2_Eps > PT2_Eps) throw "Stocastic PT2 epsilon must be smaller";
+        DoSSPT2(CIVec, CIFreq);
+    } 
     
         //Print freqs (do before removing ZPE)
     cout.precision(10); //Replace settings
