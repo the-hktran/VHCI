@@ -122,6 +122,11 @@ int main(int argc, char* argv[])
         if (SPT2_Eps > PT2_Eps) throw "Stocastic PT2 epsilon must be smaller";
         DoSSPT2(CIVec, CIFreq);
     } 
+    else if (perturb == 4)
+    {
+        std::vector<double> dE = DoStocasticPT2_StateSpecific_WithStats(CIVec, CIFreq, NWalkers, SPT2_Eps);
+        for (int n = 0; n < dE.size(); n++) CIFreq[n] += dE[n];
+    }
     
         //Print freqs (do before removing ZPE)
     cout.precision(10); //Replace settings

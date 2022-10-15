@@ -235,6 +235,8 @@ std::vector<double> DoStocasticPT2(MatrixXd&, VectorXd&, int, double);
 
 std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd&, VectorXd&, int, double);
 
+std::vector<double> DoStocasticPT2_StateSpecific_WithStats(MatrixXd&, VectorXd&, int, double);
+
 void AddASCI(vector<WaveFunction>&, MatrixXd&, VectorXd&);
 
 void AddConnected(HashedStates&, HashedStates& NewStates, int);

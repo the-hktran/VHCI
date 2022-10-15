@@ -533,6 +533,7 @@ void DoPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Evals)
             DeltaE[n] += pow(HaiCi, 2) / (Evals(n) - Ea);
         }
     }
+    BasisSet = Basis0;
     
     for (int n = 0; n < N_opt; n++)
     {
@@ -574,18 +575,17 @@ std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Eval
     for(const WaveFunction& wfn : BasisSet){
         HashedBasisInit.insert(wfn); // Populate hashed unordered_set with initial basis states
     }
-    std::vector<WaveFunction> Basis0 = BasisSet; 
+    std::vector<WaveFunction> Basis0 = BasisSet;
 
     for (unsigned int n = 0; n < N_opt; n++)
     {
         // For each state, we determine the perturbative basis and populate the state with walkers.
-        
         HashedStates HashedPTBasis;
         std::vector<double> Cn;
         for (unsigned int i = 0; i < Evecs.rows(); i++) 
         {
             AddStatesHB(HashedBasisInit, HashedPTBasis, i, Evecs(i, n), Epsilon3);
-            Cn.push_back(Evecs(i, n));
+            Cn.push_back(Evecs(i ,n));
         }
         int PTBasisSize = HashedPTBasis.size();
         cout << " Perturbative space for state " << n << " contains " << PTBasisSize << " states." << endl;
@@ -690,6 +690,7 @@ std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Eval
             DeltaE[n] += (pow(HaiCi, 2) + Hai2Ci2) / ((Evals(n) - Ea) * Nd * (Nd - 1));
         }
     }
+    BasisSet = Basis0;
     
     /*
     for (int n = 0; n < N_opt; n++)
@@ -701,6 +702,33 @@ std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Eval
     */
     return DeltaE;
 }
+
+std::vector<double> DoStocasticPT2_StateSpecific_WithStats(MatrixXd& Evecs, VectorXd& Evals, int Nd, double Epsilon3)
+{
+    std::vector<std::vector<double>> Stats;
+    std::vector<double> dEbyNw;
+    for (unsigned int w = 2; w < Nd; w += 10)
+    {
+        dEbyNw  = DoStocasticPT2_StateSpecific(Evecs, Evals, Nd, Epsilon3);
+        Stats.push_back(dEbyNw);
+    }
+    std::ofstream StatData("StatData.dat");
+    for (unsigned int w = 2; w < Nd; w += 10)
+    {
+        StatData << w << "\t";
+    }
+    StatData << std::endl;
+    for (unsigned int n = 0; n < Stats[0].size(); n++)
+    {
+        for (unsigned int w = 0; w < Stats.size(); w++)
+        {
+            StatData << Stats[w][n] << "\t";
+        }
+        StatData << std::endl;
+    }
+    return dEbyNw;
+}
+
 
 
 void DoSSPT2(MatrixXd& Evecs, VectorXd& Evals)
