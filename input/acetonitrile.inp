@@ -3,6 +3,7 @@ HCI_Eps: 0.1
 Nstate: 70
 PT2: 1
 PT2_Eps: 0
+SPT2_Eps: 0 1000
 Max_quanta: 2
 Modes: 12
  0 3065.00000 10 

@@ -104,14 +104,14 @@ void ReadCIArgs(int argc, char* argv[], fstream& vcidata, fstream& freqfile, str
         Ncpus = 1;
         cout.flush(); //Print warning
     }
-    if (Ncpus > FindMaxThreads())
+    if (Ncpus > omp_get_num_procs())
     {
         cout << " Warning: Too many threads requested.";
         cout << '\n';
         cout << "  Requested: " << Ncpus << ",";
-        cout << " Available: " << FindMaxThreads();
+        cout << " Available: " << omp_get_num_procs();
         cout << '\n';
-        cout << "  Ncpus set to " << FindMaxThreads();
+        cout << "  Ncpus set to " << omp_get_num_procs();
         cout << '\n';
         Ncpus = FindMaxThreads();
         cout.flush(); //Print warning

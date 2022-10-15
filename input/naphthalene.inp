@@ -1,8 +1,9 @@
 Comment: Quartic PES from Cane et al. doi: 10.1021/jp071610p  
-HCI_Eps: 0
+HCI_Eps: 1.0
 HBOptimizationStates: 1
-PT2: 0
-PT2_Eps: 0
+PT2: 3
+PT2_Eps: 0.2
+SPT2_Eps: 0.01 1000
 Max_quanta: 3
 Modes: 48
  0 3185.81506 10

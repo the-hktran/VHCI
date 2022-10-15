@@ -535,10 +535,11 @@ void DoPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Evals)
     }
     BasisSet = Basis0;
     
+    std::cout << " The PT2 corrections are " << std::endl;
     for (int n = 0; n < N_opt; n++)
     {
         Evals(n) += DeltaE[n];
-        //std::cout << DeltaE[n] << std::endl;
+        std::cout << DeltaE[n] << std::endl;
     }
     cout << " New ZPE after PT2 correction is: " << Evals(0) << endl;
 }
@@ -707,20 +708,17 @@ std::vector<double> DoStocasticPT2_StateSpecific_WithStats(MatrixXd& Evecs, Vect
 {
     std::vector<std::vector<double>> Stats;
     std::vector<double> dEbyNw;
-    for (unsigned int w = 2; w < Nd; w += 10)
+    for (unsigned int w = 2; w < Nd; w += 1)
     {
         dEbyNw  = DoStocasticPT2_StateSpecific(Evecs, Evals, Nd, Epsilon3);
         Stats.push_back(dEbyNw);
     }
     std::ofstream StatData("StatData.dat");
-    for (unsigned int w = 2; w < Nd; w += 10)
+    StatData << std::endl;
+    for (unsigned int w = 2; w < Stats.size(); w++)
     {
         StatData << w << "\t";
-    }
-    StatData << std::endl;
-    for (unsigned int n = 0; n < Stats[0].size(); n++)
-    {
-        for (unsigned int w = 0; w < Stats.size(); w++)
+        for (unsigned int n = 0; n < Stats[w].size(); n++)
         {
             StatData << Stats[w][n] << "\t";
         }
