@@ -170,37 +170,14 @@ std::vector<double> StateProbability(std::vector<double>& CMax)
     return CProbability;
 }
 
-void FillWalkers(std::vector<int>& WalkerPopulation, std::vector<double>& WalkerProbability, std::vector<double>& CMax, int Nd)
+void FillWalkers(std::map<int, int>& WalkerPopulation, std::vector<double>& C, int Nd)
 {
-    WalkerProbability = StateProbability(CMax);
-    std::vector<double> WalkerSummedProb;
-    WalkerPopulation.clear();
-    for (int i = 0; i < WalkerProbability.size(); i++)
-    {
-        if (i == 0) WalkerSummedProb.push_back(WalkerProbability[0]);
-        else
-        {
-            WalkerSummedProb.push_back(WalkerSummedProb[i - 1] + WalkerProbability[i]);
-        }
-        WalkerPopulation.push_back(0);
-    }
+    std::random_device RD;
+    std::mt19937 Gen(RD());
 
-    for (int i = 0; i < Nd; i++)
-    {
-        double P = (double)std::rand() / (double) RAND_MAX;
-        for (int w = 0; w < WalkerProbability.size(); w++)
-        {
-            double LB, UB;
-            if (w == 0) LB = 0;
-            else LB = WalkerSummedProb[w - 1];
-            UB = WalkerSummedProb[w];
-            if (P < UB && P > LB)
-            {
-                WalkerPopulation[w]++;
-                break;
-            }
-        }
-    }
+    std::discrete_distribution<> Distribution(C.begin(), C.end());
+
+    for (unsigned int i = 0; i < Nd; i++) WalkerPopulation[Distribution(Gen)]++;
 }
 
 std::vector<double> DoStocasticPT2(MatrixXd& Evecs, VectorXd& Evals, int Nd, double Epsilon3)
@@ -256,34 +233,9 @@ std::vector<double> DoStocasticPT2(MatrixXd& Evecs, VectorXd& Evals, int Nd, dou
         }
     }
 
-    // This is the stocastic step - this first part is state specific
-    /*
-    std::vector<std::vector<double>> WalkerProbability; // Probability for each state
-    std::vector<std::vector<int>> WalkerPopulation; // Population for each state
-    for (int n = 0; n < N_opt; n++)
-    {
-        std::vector<double> WalkerProbN;
-        std::vector<int> WalkerPopN;
-        FillWalkers(WalkerPopN, WalkerProbN, Evecs.col(n), Nd);
-        WalkerProbability.push_back(WalkerProbN);
-        WalkerPopulation.push_back(WalkerPopN);
-    }
-    // Lets form a new C matrix that only includes populated states.
-    std::vector<std::vector<double>> CWalker; // i, n
-    for (int i = 0; i < Evecs.rows(); i++)
-    {
-        std::vector<double> Ci;
-        for (int n = 0; n < N_opt; n++)
-        {
-            if (WalkerPopulation[n][i] != 0) Ci.push_back(Evecs(i, n) * WalkerPopulation[n][i]);
-        }
-        CWalker.push_back(Ci)
-    }
-    */
-
-    std::vector<double> WalkerProbability;
-    std::vector<int> WalkerPopulation;
-    FillWalkers(WalkerPopulation, WalkerProbability, Cmax, Nd);
+    std::vector<double> WalkerProbability = StateProbability(Cmax);
+    std::map<int, int> WalkerPopulation;
+    FillWalkers(WalkerPopulation, WalkerProbability, Nd);
     
     #pragma omp parallel for
     for (unsigned int a=Evecs.rows(); a<Evecs.rows()+PTBasisSize;a++)
@@ -291,9 +243,9 @@ std::vector<double> DoStocasticPT2(MatrixXd& Evecs, VectorXd& Evals, int Nd, dou
         vector<double> SumHaiCi(N_opt,0.);
         std::vector<double> SumHaiCi2(N_opt, 0.);
         vector<int> qdiffvec(BasisSet[0].M,0);
-        for (unsigned int i=0; i<Evecs.rows(); i++)
+        for (std::map<int, int>::iterator it = WalkerPopulation.begin(); it != WalkerPopulation.end(); it++)
         {
-            if (WalkerPopulation[i] == 0) continue;
+            int i = it->first;
             double Hai = 0;
             int mchange = 0; // number of modes with nonzero change in quanta
             int qdiff = 0; // total number of quanta difference 
@@ -593,9 +545,9 @@ std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Eval
         BasisSet = Basis0;
         for (const WaveFunction &B : HashedPTBasis) BasisSet.push_back(B);
 
-        std::vector<double> WalkerProbability;
-        std::vector<int> WalkerPopulation;
-        FillWalkers(WalkerPopulation, WalkerProbability, Cn, Nd);
+        std::vector<double> WalkerProbability = StateProbability(Cn);
+        std::map<int, int> WalkerPopulation;
+        FillWalkers(WalkerPopulation, WalkerProbability, Nd);
 
         #pragma omp parallel for
         for (unsigned int a = Evecs.rows(); a < Evecs.rows() + PTBasisSize; a++)
@@ -603,9 +555,9 @@ std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd& Evecs, VectorXd& Eval
             double HaiCi = 0.0;
             double Hai2Ci2 = 0.0;
             vector<int> qdiffvec(BasisSet[0].M,0);
-            for (unsigned int i = 0; i < Evecs.rows(); i++)
+            for (std::map<int, int>::iterator it = WalkerPopulation.begin(); it != WalkerPopulation.end(); ++it)
             {
-                if (WalkerPopulation[i] == 0) continue;
+                int i = it->first;
                 double Hai = 0;
                 int mchange = 0; // number of modes with nonzero change in quanta
                 int qdiff = 0; // total number of quanta difference 
@@ -708,14 +660,14 @@ std::vector<double> DoStocasticPT2_StateSpecific_WithStats(MatrixXd& Evecs, Vect
 {
     std::vector<std::vector<double>> Stats;
     std::vector<double> dEbyNw;
-    for (unsigned int w = 2; w < Nd; w += 1)
+    for (unsigned int w = 2; w < Nd; w += 10)
     {
         dEbyNw  = DoStocasticPT2_StateSpecific(Evecs, Evals, Nd, Epsilon3);
         Stats.push_back(dEbyNw);
     }
     std::ofstream StatData("StatData.dat");
     StatData << std::endl;
-    for (unsigned int w = 2; w < Stats.size(); w++)
+    for (unsigned int w = 2; w < Stats.size(); w += 10)
     {
         StatData << w << "\t";
         for (unsigned int n = 0; n < Stats[w].size(); n++)
