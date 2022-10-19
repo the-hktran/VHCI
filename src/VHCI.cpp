@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
     }
     else if (perturb == 2)
     {
-        std::vector<double> dE = DoStocasticPT2_StateSpecific(CIVec, CIFreq, NWalkers, SPT2_Eps);
+        std::vector<double> dE = DoStocasticPT2_StateSpecific(CIVec, CIFreq, SPT2_Eps, NWalkers, NSamples);
         for (int n = 0; n < dE.size(); n++) CIFreq[n] += dE[n];
     }
     else if (perturb == 3)

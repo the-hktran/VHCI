@@ -190,6 +190,7 @@ void ReadCIInput(fstream& vcidata)
     vcidata >> dummy;
     vcidata >> SPT2_Eps;
     vcidata >> NWalkers;
+    vcidata >> NSamples;
     /*
     if (perturb != 0 && perturb != 1)
     {

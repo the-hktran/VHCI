@@ -162,6 +162,7 @@ bool restart; // Am I restarting from a checkpoint file?
 double PT2_Eps; // PT2 basis energy parameter epsilon_2
 double SPT2_Eps;
 int NWalkers;
+int NSamples;
 
 typedef unordered_set<WaveFunction, WfnHasher> HashedStates;
 typedef SparseMatrix<double, 0, ptrdiff_t> SpMat;
@@ -233,7 +234,7 @@ void DoSSPT2(MatrixXd&, VectorXd&);
 
 std::vector<double> DoStocasticPT2(MatrixXd&, VectorXd&, int, double);
 
-std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd&, VectorXd&, int, double);
+std::vector<double> DoStocasticPT2_StateSpecific(MatrixXd&, VectorXd&, double, int, int);
 
 std::vector<double> DoStocasticPT2_StateSpecific_WithStats(MatrixXd&, VectorXd&, int, double);
 
